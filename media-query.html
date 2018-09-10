@@ -1,0 +1,39 @@
+<html>
+<head>
+    <link rel="stylesheet" href="core.css">
+    <link rel="stylesheet" data-href="medium.css" data-media="screen and (min-width: 768px) and (max-width: 1280px)">
+    <link rel="stylesheet" data-href="small.css" data-media="screen and (max-width: 767px)">
+</head>
+<body>
+
+<p>Hello World</p>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('link[data-media]')),
+    lazy = links.reduce((sum, link) =>{
+        var query = window.matchMedia(link.dataset.media);
+        link.dataset.media = query.media; // creating the object might reorder the query elements but not change the meaning
+        if (query.matches) {
+            mediaMatched(query); // eager load
+        } else {
+            query.addListener(mediaMatched); // attach listener to lazy load if query ever matched
+            sum.push(query); // keep reference
+        }
+        return sum;
+    },[]);
+
+  function mediaMatched(query) {
+    var link = links.find((link) => link.dataset.media === query.media);
+    if (link) {
+        link.setAttribute('href', link.dataset.href);
+        link.setAttribute('media', link.dataset.media);
+        link.removeAttribute('data-href');
+        link.removeAttribute('data-media');
+    }
+    query.target && query.target.removeListener(mediaMatched);
+  }
+}());
+</script>
+</body>
+</html>
